@@ -145,7 +145,7 @@ public class ImportAPI {
 			}
 		}
 		
-		
+		//123
 		return allVacancies;
 	}
 }
