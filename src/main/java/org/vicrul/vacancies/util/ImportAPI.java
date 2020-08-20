@@ -10,6 +10,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.stereotype.Component;
 import org.vicrul.vacancies.model.Category;
 import org.vicrul.vacancies.model.City;
 import org.vicrul.vacancies.model.Region;
@@ -17,6 +18,7 @@ import org.vicrul.vacancies.model.Vacancy;
 
 import com.jayway.jsonpath.JsonPath;
 
+@Component
 public class ImportAPI {
 
 	private String getJSON(String urlToRead) {
@@ -69,7 +71,8 @@ public class ImportAPI {
 	
 	public List<City> getCities(long regionId) {
 
-		String citiesInRegion = JsonPath.read(getJSON("https://api.hh.ru/areas/113"), "$.areas[?(@.id == '" + regionId + "')].areas[*]").toString();		
+		String citiesInRegion = JsonPath.read(getJSON("https://api.hh.ru/areas/" + getRussiaId()), "$.areas[?(@.id == '" + regionId + "')]"
+				+ ".areas[*]").toString();		
 		int numberOfCitiesInRegion = JsonPath.read(citiesInRegion, "$.length()");
 		
 		List<City> cities = new ArrayList<City>();
@@ -118,7 +121,8 @@ public class ImportAPI {
 			
 			long id = Long.parseLong(JsonPath.read(json, "$.[" + vacancy + "].id").toString());
 			String name = JsonPath.read(json, "$.[" + vacancy + "].name");
-			Date published = Date.valueOf(LocalDate.parse(JsonPath.read(json, "$.[" + vacancy + "].published_at").toString().substring(0, 10), DateTimeFormatter.ofPattern("yyy-MM-dd")));
+			Date published = Date.valueOf(LocalDate.parse(JsonPath.read(json, "$.[" + vacancy + "].published_at")
+					.toString().substring(0, 10), DateTimeFormatter.ofPattern("yyy-MM-dd")));
 			String company = JsonPath.read(json, "$.[" + vacancy + "].employer.name");
 			int salaryFrom = 0;
 			int salaryTo = 0;
@@ -126,8 +130,10 @@ public class ImportAPI {
 			
 			Object salary = JsonPath.read(json, "$.[" + vacancy + "].salary");
 			if(salary != null) {
-				salaryFrom = JsonPath.read(json, "$.[" + vacancy + "].salary.from") != null ? (Integer)JsonPath.read(json, "$.[" + vacancy + "].salary.from") : 0 ;
-				salaryTo =  JsonPath.read(json, "$.[" + vacancy + "].salary.to") == null ? 0 : (Integer)JsonPath.read(json, "$.[" + vacancy + "].salary.to");
+				salaryFrom = JsonPath.read(json, "$.[" + vacancy + "].salary.from") != null 
+						? (Integer)JsonPath.read(json, "$.[" + vacancy + "].salary.from") : 0 ;
+				salaryTo =  JsonPath.read(json, "$.[" + vacancy + "].salary.to") == null 
+						? 0 : (Integer)JsonPath.read(json, "$.[" + vacancy + "].salary.to");
 				currency = JsonPath.read(json, "$.[" + vacancy + "].salary.currency");
 			}
 			

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Вакансии с HH.ru</title>
+	<script src="/js/Main.js"></script>
+</head>
+<body>
+
+
+	<form action="">
+		<i>Категории:</i>
+		<select id="categories-selector"></select><br><br>
+		<i>Регионы:</i>
+		<select id="regions-selector" onchange="updateCities(this.value)"></select>
+		<br><br>
+		<i>Города:</i>
+		<select id="cities-selector"></select><br><br>
+		<input type="submit" value="Поиск">
+	</form>
+
+</body>
+</html>

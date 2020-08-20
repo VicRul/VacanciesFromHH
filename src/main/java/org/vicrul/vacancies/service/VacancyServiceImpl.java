@@ -2,49 +2,37 @@ package org.vicrul.vacancies.service;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.vicrul.vacancies.model.Category;
 import org.vicrul.vacancies.model.City;
 import org.vicrul.vacancies.model.Vacancy;
-import org.vicrul.vacancies.repository.CategoryDAO;
-import org.vicrul.vacancies.repository.CityDAO;
-import org.vicrul.vacancies.repository.VacancyDAO;
+import org.vicrul.vacancies.repository.CategoryRepository;
+import org.vicrul.vacancies.repository.CityRepository;
+import org.vicrul.vacancies.repository.VacancyRepository;
 import org.vicrul.vacancies.util.ImportAPI;
 
-import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
-@Transactional
-@Service("VacancyService")
-@NoArgsConstructor
+
+@Service
+@AllArgsConstructor
 public class VacancyServiceImpl implements VacancyService {
 
-	@Autowired
-	private VacancyDAO vacancyDao;
-
-	@Autowired
-	private CategoryDAO categoryDao;
-
-	@Autowired
-	private CityDAO cityDao;
-
+	private final VacancyRepository vacancyRepo;
+	private final CategoryRepository categoryRepo;
+	private final CityRepository cityRepo;
 	private ImportAPI importAPI;
 
 	@Override
 	public List<Vacancy> getAllVacancies() {
-		return vacancyDao.getAllVacancies();
+		return vacancyRepo.findAll();
 	}
 
 	@Override
 	public void updateVacancyList(long cityId, long categoryId) {
-
-		if (!getAllVacancies().isEmpty()) {
-			vacancyDao.removeAllVacancies();
-		}
 		
-		City city = cityDao.findCity(cityId);
-		Category category = categoryDao.findCategory(categoryId);
+		City city = cityRepo.findById(cityId);
+		Category category = categoryRepo.findById(categoryId);
 
 		importAPI = new ImportAPI();
 		List<Vacancy> allVacancies = importAPI.getVacancies(cityId, categoryId);
@@ -54,7 +42,7 @@ public class VacancyServiceImpl implements VacancyService {
 			vacancy.setCategoryId(category);
 		}
 
-		vacancyDao.saveVacancy(allVacancies);
+		vacancyRepo.saveAll(allVacancies);
 	}
 
 }

@@ -2,49 +2,39 @@ package org.vicrul.vacancies.service;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.vicrul.vacancies.model.City;
 import org.vicrul.vacancies.model.Region;
-import org.vicrul.vacancies.repository.CityDAO;
-import org.vicrul.vacancies.repository.RegionDAO;
+import org.vicrul.vacancies.repository.CityRepository;
+import org.vicrul.vacancies.repository.RegionRepository;
 import org.vicrul.vacancies.util.ImportAPI;
 
-import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
-@Transactional
-@Service("CityService")
-@NoArgsConstructor
+
+@Service
+@AllArgsConstructor
 public class CityServiceImpl implements CityService {
 
-	@Autowired
-	private CityDAO cityDao;
-	
-	@Autowired
-	private RegionDAO regionDao;
-	
+	private final CityRepository cityRepo;
+	private final RegionRepository regionRepo;
 	private ImportAPI importAPI;
 	
 	@Override
 	public List<City> getAllCities() {
-		return cityDao.getAllCities();
+		return cityRepo.findAll();
 	}
 
 	@Override
 	public void updateCityList(long regionId) {
 		
-		if(!getAllCities().isEmpty()) {
-			cityDao.removeAllCities();
-		}
-		
 		importAPI = new ImportAPI();
 		List<City> allCities = importAPI.getCities(regionId);
-		Region region = regionDao.findRegion(regionId);
+		Region region = regionRepo.findById(regionId);
 		
 		for (City city : allCities) {
 			city.setRegionId(region);
 		}
-		cityDao.saveCity(allCities);
+		cityRepo.saveAll(allCities);
 	}
 }
